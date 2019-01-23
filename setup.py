@@ -8,7 +8,7 @@ with open('eyapm/__init__.py', 'r') as f:
             version = line.strip().split('=')[1].strip(' \'"')
             break
     else:
-        version = '0.1.1'
+        version = '0.1.0'
 
 REQUIRES = ['click>=7.0']
 
@@ -44,5 +44,10 @@ setup(
     install_requires=REQUIRES,
     tests_require=['coverage', 'pytest'],
 
-    packages=find_packages(),
+    packages=find_packages(exclude='test*'),
+    entry_point={
+        'console_scripts': [
+            'eyapm=eyapm.main:main'
+        ]
+    }
 )
