@@ -48,9 +48,8 @@ def find_remote_package(name, syncdbs):
         pkg = db.get_pkg(name)
         if pkg is not None:
             return pkg
-
-    print('error: package %s was not found' % name)
-    sys.exit(-1)
+            
+    return None
 
 
 def list_remote_packages(handle, pkgnames, show_detail):
