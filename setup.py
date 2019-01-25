@@ -10,7 +10,7 @@ with open('eyapm/__init__.py', 'r') as f:
     else:
         version = '0.1.0'
 
-REQUIRES = ['click>=7.0']
+REQUIRES = ['click>=7.0', 'tqdm>=4.29']
 
 setup(
     name='eyapm',
@@ -21,7 +21,7 @@ setup(
     author_email='riag@163.com',
     maintainer='riag',
     maintainer_email='riag@163.com',
-    url='https://github.com/_/eyapm',
+    url='https://github.com/riag/eyapm',
     license='Apache-2.0',
 
     keywords=[
@@ -34,9 +34,9 @@ setup(
         'License :: OSI Approved :: Apache Software License',
         'Natural Language :: English',
         'Operating System :: OS Independent',
-        'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.7',
         'Programming Language :: Python :: Implementation :: CPython',
         'Programming Language :: Python :: Implementation :: PyPy',
     ],
