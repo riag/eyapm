@@ -101,12 +101,22 @@ ALPM_EVENT_HOOK_RUN_START = 43
 ALPM_EVENT_HOOK_RUN_DONE = 44
 
 event_msg_map = {
+    ALPM_EVENT_CHECKDEPS_START: 'checking dependencies...',
+    ALPM_EVENT_FILECONFLICTS_START: 'checking for file conflicts',
     ALPM_EVENT_RESOLVEDEPS_START: 'resolving dependencies...',
     ALPM_EVENT_INTERCONFLICTS_START: 'looking for conflicting packages...',
-    ALPM_EVENT_KEYRING_START: 'checking keys in keyring',
-    ALPM_EVENT_INTEGRITY_START: 'checking package integrity',
-    ALPM_EVENT_LOAD_START: 'loading package files',
-    ALPM_EVENT_FILECONFLICTS_START: 'checking for file conflicts',
     ALPM_EVENT_TRANSACTION_START: ':: Processing package changes...',
+    ALPM_EVENT_INTEGRITY_START: 'checking package integrity',
+    ALPM_EVENT_KEYRING_START: 'checking keys in keyring',
+    ALPM_EVENT_KEY_DOWNLOAD_START: 'downloading required keys...',
+    ALPM_EVENT_LOAD_START: 'loading package files',
+    ALPM_EVENT_DELTA_INTEGRITY_START: 'checking delta integrity...',
+    ALPM_EVENT_DELTA_PATCHES_START: 'applying deltas...',
+    # ALPM_EVENT_DELTA_PATCH_START: '',
+    ALPM_EVENT_DELTA_PATCH_DONE: 'success!',
+    ALPM_EVENT_DELTA_PATCH_FAILED: 'failed.',
+    ALPM_EVENT_RETRIEVE_START: 'Retrieving packages...',
+    ALPM_EVENT_DISKSPACE_START: 'checking available disk space...',
+
     ALPM_EVENT_HOOK_START: ':: Running post-transaction hooks...',
 }
