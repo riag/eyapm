@@ -24,11 +24,11 @@ def sync_dbs(handle, syncdbs):
             sys.exit(-1)
 
         with eyapm.util.work_with_transaction(t):
-            if not db.update(True):
+            if not db.update(False):
                 print(' %s is up to date' % db.name)
 
 
-def install_pkgnames(handle, syncdbs, pkgnames):
+def install_pkgnames(handle, syncdbs, quiet, pkgnames):
     targets = []
     for name in pkgnames:
         pkg = eyapm.util.find_remote_package(syncdbs, name)
@@ -39,25 +39,60 @@ def install_pkgnames(handle, syncdbs, pkgnames):
         targets.append(pkg)
 
     t = transaction.create_transaction(handle)
+    print('transaction:')
+    print(dir(t))
 
     # :: Proceed with installation? [Y/n]
     with eyapm.util.work_with_transaction(t):
         for pkg in targets:
             t.add_pkg(pkg)
         try:
-            r = t.prepare()
-            print(dir(t))
-            print(r)
+            t.prepare()
+            total_install_size = 0
+            total_download_size = 0
             for x in t.to_add:
-                print(x)
-            t.commit()
+                total_install_size += x.isize
+                total_download_size += x.download_size
+
+            print('')
+            package_name_list = [x.name for x in t.to_add]
+            print('Packages (%d) %s\n' % (
+                len(t.to_add), ' '.join(package_name_list)
+            ))
+            size_str = '{:.2f}'.format(
+                    total_install_size/1024/1024
+            )
+            s = 'Total Installed Size: {:>8} MiB'.format(
+                size_str
+            )
+            print(s)
+            size_str = '{:.2f}'.format(
+                    total_download_size/1024/1024
+            )
+            s = 'Net Upgrade Size:     {:>8} MiB'.format(
+                size_str
+            )
+            print(s)
+            print('')
+
+            answer = 'y'
+            if not quiet:
+                answer = input(':: Proceed with installation? [Y/n] ')
+                if not answer:
+                    answer = 'y'
+
+            answer = answer.lower()
+
+            if answer in ('y', 'yes'):
+                t.commit()
+                return
+
         except pyalpm.error as e:
             print("")
             print(e)
             sys.exit(-1)
         except Exception as e:
             print(e)
-            t.interrupt()
 
 
 @click.command('install')
@@ -65,14 +100,15 @@ def install_pkgnames(handle, syncdbs, pkgnames):
 @click.option(
     '--config-file', 'config_file',
     default=eyapm.default.config_file)
+@click.option(
+    '-y', '--yes', 'quiet', is_flag=True, default=False
+)
 @click.argument('pkgnames', nargs=-1, required=True)
-def cli(ctx, config_file, pkgnames):
+def cli(ctx, config_file, quiet, pkgnames):
     handle = config.init_with_config(config_file)
-    print(dir(handle))
     print(handle.lockfile)
     syncdbs = handle.get_syncdbs()
 
     sync_dbs(handle, syncdbs)
-    return
 
-    install_pkgnames(handle, syncdbs, pkgnames)
+    install_pkgnames(handle, syncdbs, quiet, pkgnames)

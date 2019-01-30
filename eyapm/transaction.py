@@ -4,13 +4,18 @@ import sys
 import os
 from tqdm import tqdm
 from tqdm._utils import _environ_cols_wrapper
+from eyapm.event import event_msg_map
 
 
 cols = _environ_cols_wrapper()(sys.stdout)
 
 
 def cb_event(*args):
-    print('event ', args)
+    msg = event_msg_map.get(args[0], '')
+    if msg:
+        print(msg)
+    else:
+        print('event ', args)
 
 
 def cb_conv(*args):
