@@ -3,6 +3,8 @@ import click
 from pycman import config
 import eyapm
 
+pkgname_fmt = '{:<30}\t{:<10}\t{:<10}\t{}'
+
 
 def search_pkgname(handle, pkgname):
 
@@ -18,10 +20,11 @@ def search_pkgname(handle, pkgname):
         name = pkg.name
         if local_db.get_pkg(name):
             name = '%s(installed)' % name
-        print('%s \t\t %s \t\t %s \t\t %s' % (
+        s = pkgname_fmt.format(
             name, pkg.version,
             pkg.db.name, pkg.desc
-        ))
+        )
+        print(s)
 
 
 def search_filenames(handle, filenames):

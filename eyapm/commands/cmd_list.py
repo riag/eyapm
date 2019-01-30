@@ -5,6 +5,8 @@ from pycman import config
 from pycman import pkginfo
 import eyapm
 
+print_fmt = '{:<40}\t{}'
+
 
 def list_installed_packages(handle, pkgnames, show_detail):
     db = handle.get_localdb()
@@ -22,9 +24,10 @@ def list_installed_packages(handle, pkgnames, show_detail):
 
     if not show_detail:
         for pkg in pkglist:
-            print('%s %s' % (
+            s = print_fmt.format(
                 pkg.name, pkg.version
-            ))
+            )
+            print(s)
     else:
         for pkg in pkglist:
             pkginfo.display_pkginfo(pkg, 2)
@@ -48,7 +51,7 @@ def find_remote_package(name, syncdbs):
         pkg = db.get_pkg(name)
         if pkg is not None:
             return pkg
-            
+
     return None
 
 
@@ -69,9 +72,10 @@ def list_remote_packages(handle, pkgnames, show_detail):
 
     if not show_detail:
         for pkg in pkglist:
-            print('%s %s' % (
+            s = print_fmt.format(
                 pkg.name, pkg.version
-            ))
+            )
+            print(s)
     else:
         for pkg in pkglist:
             pkginfo.display_pkginfo(pkg, 2, 'sync')
