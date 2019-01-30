@@ -4,18 +4,28 @@ import sys
 import os
 from tqdm import tqdm
 from tqdm._utils import _environ_cols_wrapper
-from eyapm.event import event_msg_map
-
+from eyapm import event
 
 cols = _environ_cols_wrapper()(sys.stdout)
 
 
-def cb_event(*args):
-    msg = event_msg_map.get(args[0], '')
-    if msg:
-        print(msg)
-    else:
-        print('event ', args)
+def create_cb_event(handle, t):
+
+    def cb_event(*args):
+        event_id = args[0]
+        if event_id == event.ALPM_EVENT_KEYRING_START:
+            pass
+
+        if event_id == event.ALPM_EVENT_TRANSACTION_START:
+            pass
+
+        msg = event.event_msg_map.get(event_id, '')
+        if msg:
+            print(msg)
+        else:
+            print('event ', args)
+
+    return cb_event
 
 
 def cb_conv(*args):
@@ -33,7 +43,7 @@ _last_pg_percent = None
 
 def cb_progress(target, percent, n, i):
     global _last_pg_target, _last_pg_progressbar, _last_pg_percent
-    if _last_pg_target is not None or _last_pg_target != target:
+    if _last_pg_target is not None and _last_pg_target != target:
         return
 
     if _last_pg_target is None:
@@ -106,10 +116,6 @@ def cb_dl(filename, tx, total):
 
 
 def init_from_options(handle, config={}):
-    handle.dlcb = cb_dl
-    handle.eventcb = cb_event
-    handle.questioncb = cb_conv
-    handle.progresscb = cb_progress
     '''
     "Initializes a transaction.\n"
     "Arguments:\n"
@@ -155,6 +161,12 @@ def init_from_options(handle, config={}):
         # "nolock",
         #config.get('nolock', False)
     )
+
+    cb_event_func = create_cb_event(handle, t)
+    handle.dlcb = cb_dl
+    handle.eventcb = cb_event_func
+    handle.questioncb = cb_conv
+    handle.progresscb = cb_progress
     return t
 
 
