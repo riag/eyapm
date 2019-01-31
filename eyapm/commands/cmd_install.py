@@ -39,15 +39,13 @@ def install_pkgnames(handle, syncdbs, quiet, pkgnames):
         targets.append(pkg)
 
     t = transaction.create_transaction(handle)
-    print('transaction:')
-    print(dir(t))
 
     # :: Proceed with installation? [Y/n]
     with eyapm.util.work_with_transaction(t):
         for pkg in targets:
             t.add_pkg(pkg)
         try:
-            t.prepare()
+            transaction.prepare(t)
             total_install_size = 0
             total_download_size = 0
             for x in t.to_add:

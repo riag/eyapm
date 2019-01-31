@@ -8,24 +8,65 @@ from eyapm import event
 
 cols = _environ_cols_wrapper()(sys.stdout)
 
+_last_operation_action = None
 
-def create_cb_event(handle, t):
 
-    def cb_event(*args):
-        event_id = args[0]
-        if event_id == event.ALPM_EVENT_KEYRING_START:
-            pass
+def _start_operation_action(*args):
+    event_str = args[1]
+    global _last_operation_action
+    if event_str.startswith('Adding'):
+        _last_operation_action = 'adding'
+    elif event_str.startswith('Upgrading'):
+        _last_operation_action = 'upgrading'
+    elif event_str.startswith('Reinstalling'):
+        _last_operation_action = 'reinstalling'
+    elif event_str.startswith('Downgrading'):
+        _last_operation_action = 'downgrading'
+    elif event_str.startswith('Removing'):
+        _last_operation_action = 'removing'
 
-        if event_id == event.ALPM_EVENT_TRANSACTION_START:
-            pass
 
-        msg = event.event_msg_map.get(event_id, '')
-        if msg:
-            print(msg)
-        else:
-            print('event ', args)
+def _start_check_keyring(*args):
+    global _last_pg_desc
+    _last_pg_desc = 'checking keys in keyring'
 
-    return cb_event
+
+def _start_check_package_integrity(*args):
+    global _last_pg_desc
+    _last_pg_desc = 'checking package integrity'
+
+
+def _start_load_package_files(*args):
+    global _last_pg_desc
+    _last_pg_desc = 'loading package files'
+
+
+def _start_check_file_conflicts(*args):
+    global _last_pg_desc
+    _last_pg_desc = 'checking for file conflicts'
+
+
+event_action_map = {
+    event.ALPM_EVENT_PACKAGE_OPERATION_START: _start_operation_action,
+    event.ALPM_EVENT_KEYRING_START: _start_check_keyring,
+    event.ALPM_EVENT_INTEGRITY_START: _start_check_package_integrity,
+    event.ALPM_EVENT_LOAD_START: _start_load_package_files,
+    event.ALPM_EVENT_FILECONFLICTS_START: _start_check_file_conflicts,
+}
+
+
+def cb_event(*args):
+    event_id = args[0]
+
+    func = event_action_map.get(event_id, None)
+    if func:
+        return func(*args)
+
+    msg = event.event_msg_map.get(event_id, '')
+    if msg:
+        print(msg)
+    #else:
+    #    print('event ', args)
 
 
 def cb_conv(*args):
@@ -39,10 +80,19 @@ bar_intall_format = ''.join(bar_install_format_list)
 _last_pg_target = None
 _last_pg_progressbar = None
 _last_pg_percent = None
+_last_pg_desc = None
+
+_finish_target_set = []
 
 
 def cb_progress(target, percent, n, i):
-    global _last_pg_target, _last_pg_progressbar, _last_pg_percent
+    global _last_pg_target, _last_pg_progressbar
+    global _last_pg_percent, _last_pg_desc
+    global _last_operation_action, _finish_target_set
+
+    if target and percent == 100 and target in _finish_target_set:
+        return
+
     if _last_pg_target is not None and _last_pg_target != target:
         return
 
@@ -53,10 +103,23 @@ def cb_progress(target, percent, n, i):
             dynamic_ncols=True,
             bar_format=bar_intall_format
         )
-        _last_pg_progressbar.set_description('%s ' % target)
+
         _last_pg_progressbar.update(percent)
         _last_pg_percent = percent
         return
+
+    if target:
+        desc = '(%d/%d) %s %s' % (
+            i, n,
+            _last_operation_action,
+            target
+        )
+        _last_pg_progressbar.set_description(desc)
+    else:
+        desc = '(%d/%d) %s' % (
+            i, n, _last_pg_desc
+        )
+        _last_pg_progressbar.set_description(desc)
 
     d = percent - _last_pg_percent
     _last_pg_percent = percent
@@ -64,9 +127,14 @@ def cb_progress(target, percent, n, i):
         _last_pg_progressbar.update(d)
 
     if percent == 100:
+        if target:
+            _finish_target_set.append(target)
+
         _last_pg_target = None
         _last_pg_progressbar = None
         _last_pg_percent = None
+        _last_operation_action = None
+        _last_pg_desc = None
 
 
 bar_dl_format_list = ['{desc:<30}', ' '*int(cols/3), ]
@@ -113,6 +181,10 @@ def cb_dl(filename, tx, total):
         _last_dl_filename = None
         _last_dl_progressbar = None
         _last_dl_tx = None
+
+
+def prepare(t):
+    t.prepare()
 
 
 def init_from_options(handle, config={}):
@@ -162,7 +234,7 @@ def init_from_options(handle, config={}):
         #config.get('nolock', False)
     )
 
-    cb_event_func = create_cb_event(handle, t)
+    cb_event_func = cb_event
     handle.dlcb = cb_dl
     handle.eventcb = cb_event_func
     handle.questioncb = cb_conv
