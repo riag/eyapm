@@ -187,6 +187,46 @@ def prepare(t):
     t.prepare()
 
 
+'''
+/** Transaction flags */
+typedef enum _alpm_transflag_t {
+	/** Ignore dependency checks. */
+	ALPM_TRANS_FLAG_NODEPS = 1,
+	/* (1 << 1) flag can go here */
+	/** Delete files even if they are tagged as backup. */
+	ALPM_TRANS_FLAG_NOSAVE = (1 << 2),
+	/** Ignore version numbers when checking dependencies. */
+	ALPM_TRANS_FLAG_NODEPVERSION = (1 << 3),
+	/** Remove also any packages depending on a package being removed. */
+	ALPM_TRANS_FLAG_CASCADE = (1 << 4),
+	/** Remove packages and their unneeded deps (not explicitly installed). */
+	ALPM_TRANS_FLAG_RECURSE = (1 << 5),
+	/** Modify database but do not commit changes to the filesystem. */
+	ALPM_TRANS_FLAG_DBONLY = (1 << 6),
+	/* (1 << 7) flag can go here */
+	/** Use ALPM_PKG_REASON_DEPEND when installing packages. */
+	ALPM_TRANS_FLAG_ALLDEPS = (1 << 8),
+	/** Only download packages and do not actually install. */
+	ALPM_TRANS_FLAG_DOWNLOADONLY = (1 << 9),
+	/** Do not execute install scriptlets after installing. */
+	ALPM_TRANS_FLAG_NOSCRIPTLET = (1 << 10),
+	/** Ignore dependency conflicts. */
+	ALPM_TRANS_FLAG_NOCONFLICTS = (1 << 11),
+	/* (1 << 12) flag can go here */
+	/** Do not install a package if it is already installed and up to date. */
+	ALPM_TRANS_FLAG_NEEDED = (1 << 13),
+	/** Use ALPM_PKG_REASON_EXPLICIT when installing packages. */
+	ALPM_TRANS_FLAG_ALLEXPLICIT = (1 << 14),
+	/** Do not remove a package if it is needed by another one. */
+	ALPM_TRANS_FLAG_UNNEEDED = (1 << 15),
+	/** Remove also explicitly installed unneeded deps (use with ALPM_TRANS_FLAG_RECURSE). */
+	ALPM_TRANS_FLAG_RECURSEALL = (1 << 16),
+	/** Do not lock the database during the operation. */
+	ALPM_TRANS_FLAG_NOLOCK = (1 << 17)
+} alpm_transflag_t;
+'''
+
+
 def init_from_options(handle, config={}):
     '''
     "Initializes a transaction.\n"
@@ -223,7 +263,7 @@ def init_from_options(handle, config={}):
         # "noconflicts",
         config.get('noconflicts', False),
         # "needed",
-        config.get('needed', False),
+        config.get('needed', True),
         # "allexplicit",
         config.get('allexplicit', False),
         # "unneeded",
