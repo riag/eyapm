@@ -38,14 +38,23 @@ def install_pkgnames(handle, syncdbs, quiet, pkgnames):
 
         targets.append(pkg)
 
-    t = transaction.create_transaction(handle)
+    t = transaction.create_transaction(
+        handle,
+        {'needed': False}
+    )
 
     # :: Proceed with installation? [Y/n]
     with eyapm.util.work_with_transaction(t):
+        print('')
+        print('Preparing...')
         for pkg in targets:
             t.add_pkg(pkg)
         try:
             transaction.prepare(t)
+            if len(t.to_add) == 0:
+                print('Nothing to do.')
+                return
+
             total_install_size = 0
             total_download_size = 0
             for x in t.to_add:
@@ -86,11 +95,13 @@ def install_pkgnames(handle, syncdbs, quiet, pkgnames):
                 return
 
         except pyalpm.error as e:
-            print("")
+            print("error")
             print(e)
             sys.exit(-1)
         except Exception as e:
+            print('other exception')
             print(e)
+            t.interrupt()
 
 
 @click.command('install')
@@ -104,7 +115,6 @@ def install_pkgnames(handle, syncdbs, quiet, pkgnames):
 @click.argument('pkgnames', nargs=-1, required=True)
 def cli(ctx, config_file, quiet, pkgnames):
     handle = config.init_with_config(config_file)
-    print(handle.lockfile)
     syncdbs = handle.get_syncdbs()
 
     sync_dbs(handle, syncdbs)
