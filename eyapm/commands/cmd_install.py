@@ -4,28 +4,9 @@ from pycman import config
 import pyalpm
 
 import sys
-import os
 
 import eyapm
 from eyapm import transaction
-
-
-def sync_dbs(handle, syncdbs):
-    print(':: Synchronizing package databases...')
-    for db in syncdbs:
-        t = None
-        try:
-            t = transaction.init_from_options(handle)
-        except pyalpm.error as e:
-            print('')
-            print(e)
-            if os.path.exists(handle.lockfile):
-                print('%s is exist' % handle.lockfile)
-            sys.exit(-1)
-
-        with eyapm.util.work_with_transaction(t):
-            if not db.update(False):
-                print(' %s is up to date' % db.name)
 
 
 def install_pkgnames(handle, syncdbs, quiet, pkgnames):
@@ -117,6 +98,6 @@ def cli(ctx, config_file, quiet, pkgnames):
     handle = config.init_with_config(config_file)
     syncdbs = handle.get_syncdbs()
 
-    sync_dbs(handle, syncdbs)
+    eyapm.util.sync_dbs(handle, syncdbs)
 
     install_pkgnames(handle, syncdbs, quiet, pkgnames)

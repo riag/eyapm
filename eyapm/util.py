@@ -1,5 +1,9 @@
 
 import contextlib
+import pyalpm
+from eyapm import transaction
+import os
+import sys
 
 
 @contextlib.contextmanager
@@ -30,3 +34,21 @@ def find_remote_package(syncdbs, name):
             return pkg
 
     return None
+
+
+def sync_dbs(handle, syncdbs):
+    print(':: Synchronizing package databases...')
+    for db in syncdbs:
+        t = None
+        try:
+            t = transaction.init_from_options(handle)
+        except pyalpm.error as e:
+            print('')
+            print(e)
+            if os.path.exists(handle.lockfile):
+                print('%s is exist' % handle.lockfile)
+            sys.exit(-1)
+
+        with work_with_transaction(t):
+            if not db.update(False):
+                print(' %s is up to date' % db.name)
