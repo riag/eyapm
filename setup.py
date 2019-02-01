@@ -43,11 +43,13 @@ setup(
 
     install_requires=REQUIRES,
     tests_require=['coverage', 'pytest'],
-
-    packages=find_packages(exclude='test*'),
-    entry_point={
+    packages=find_packages(exclude=[
+        '*.tests', '*.tests.*', 'tests.*', 'tests'
+        ]),
+    entry_points={
         'console_scripts': [
             'eyapm=eyapm.cli:main'
         ]
-    }
+    },
+    zip_safe=False,
 )
