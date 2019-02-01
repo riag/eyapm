@@ -47,7 +47,7 @@ setup(
     packages=find_packages(exclude='test*'),
     entry_point={
         'console_scripts': [
-            'eyapm=eyapm.main:main'
+            'eyapm=eyapm.cli:main'
         ]
     }
 )
