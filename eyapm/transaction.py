@@ -15,7 +15,7 @@ def _start_operation_action(*args):
     event_str = args[1]
     global _last_operation_action
     if event_str.startswith('Adding'):
-        _last_operation_action = 'adding'
+        _last_operation_action = 'installing'
     elif event_str.startswith('Upgrading'):
         _last_operation_action = 'upgrading'
     elif event_str.startswith('Reinstalling'):
