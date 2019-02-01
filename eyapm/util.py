@@ -10,6 +10,10 @@ import sys
 def work_with_transaction(t):
     try:
         yield
+    except Exception as e:
+        print('other exception')
+        print(e)
+        t.interrupt()
     finally:
         t.release()
 

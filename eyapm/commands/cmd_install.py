@@ -1,7 +1,6 @@
 
 import click
 from pycman import config
-import pyalpm
 
 import sys
 
@@ -28,65 +27,55 @@ def install_pkgnames(handle, syncdbs, quiet, force_install, pkgnames):
         {'needed': not force_install}
     )
 
-    # :: Proceed with installation? [Y/n]
     with eyapm.util.work_with_transaction(t):
         print('')
         print('Preparing...')
         for pkg in targets:
             t.add_pkg(pkg)
-        try:
-            transaction.prepare(t)
-            if len(t.to_add) == 0:
-                print('Nothing to do.')
-                return
 
-            total_install_size = 0
-            total_download_size = 0
-            for x in t.to_add:
-                total_install_size += x.isize
-                total_download_size += x.download_size
+        transaction.prepare(t)
+        if len(t.to_add) == 0:
+            print('Nothing to do.')
+            return
 
-            print('')
-            package_name_list = [x.name for x in t.to_add]
-            print('Packages (%d) %s\n' % (
-                len(t.to_add), ' '.join(package_name_list)
-            ))
-            size_str = '{:.2f}'.format(
-                    total_install_size/1024/1024
-            )
-            s = 'Total Installed Size: {:>8} MiB'.format(
-                size_str
-            )
-            print(s)
-            size_str = '{:.2f}'.format(
-                    total_download_size/1024/1024
-            )
-            s = 'Net Upgrade Size:     {:>8} MiB'.format(
-                size_str
-            )
-            print(s)
-            print('')
+        total_install_size = 0
+        total_download_size = 0
+        for x in t.to_add:
+            total_install_size += x.isize
+            total_download_size += x.download_size
 
-            answer = 'y'
-            if not quiet:
-                answer = input(':: Proceed with installation? [Y/n] ')
-                if not answer:
-                    answer = 'y'
-                else:
-                    answer = answer.lower()
+        print('')
+        package_name_list = [x.name for x in t.to_add]
+        print('Packages (%d) %s\n' % (
+            len(t.to_add), ' '.join(package_name_list)
+        ))
+        size_str = '{:.2f}'.format(
+                total_install_size/1024/1024
+        )
+        s = 'Total Installed Size: {:>8} MiB'.format(
+            size_str
+        )
+        print(s)
+        size_str = '{:.2f}'.format(
+                total_download_size/1024/1024
+        )
+        s = 'Net Upgrade Size:     {:>8} MiB'.format(
+            size_str
+        )
+        print(s)
+        print('')
 
-            if answer in ('y', 'yes'):
-                t.commit()
-                return
+        answer = 'y'
+        if not quiet:
+            answer = input(':: Proceed with installation? [Y/n] ')
+            if not answer:
+                answer = 'y'
+            else:
+                answer = answer.lower()
 
-        except pyalpm.error as e:
-            print("error")
-            print(e)
-            sys.exit(-1)
-        except Exception as e:
-            print('other exception')
-            print(e)
-            t.interrupt()
+        if answer in ('y', 'yes'):
+            t.commit()
+            return
 
 
 @click.command('install')
