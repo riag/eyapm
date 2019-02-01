@@ -9,7 +9,11 @@ import eyapm
 from eyapm import transaction
 
 
-def install_pkgnames(handle, syncdbs, quiet, pkgnames):
+# pamac 工具里，会在 prepare 之前
+# 查看 pkg 是否有 opt dept，如果有，会询问用户是否安装 opt dept
+# 参见 https://gitlab.manjaro.org/applications/pamac/blob/master/src/transaction.vala
+
+def install_pkgnames(handle, syncdbs, quiet, force_install, pkgnames):
     targets = []
     for name in pkgnames:
         pkg = eyapm.util.find_remote_package(syncdbs, name)
@@ -21,7 +25,7 @@ def install_pkgnames(handle, syncdbs, quiet, pkgnames):
 
     t = transaction.create_transaction(
         handle,
-        {'needed': True}
+        {'needed': not force_install}
     )
 
     # :: Proceed with installation? [Y/n]
@@ -93,11 +97,17 @@ def install_pkgnames(handle, syncdbs, quiet, pkgnames):
 @click.option(
     '-y', '--yes', 'quiet', is_flag=True, default=False
 )
+@click.option(
+    '--force', 'force_install', is_flag=True, default=False
+)
 @click.argument('pkgnames', nargs=-1, required=True)
-def cli(ctx, config_file, quiet, pkgnames):
+def cli(ctx, config_file, quiet, force_install, pkgnames):
     handle = config.init_with_config(config_file)
     syncdbs = handle.get_syncdbs()
 
     eyapm.util.sync_dbs(handle, syncdbs)
 
-    install_pkgnames(handle, syncdbs, quiet, pkgnames)
+    install_pkgnames(
+        handle, syncdbs, quiet,
+        force_install, pkgnames
+        )
