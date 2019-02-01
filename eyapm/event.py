@@ -118,6 +118,7 @@ event_msg_map = {
     ALPM_EVENT_RETRIEVE_START: 'Retrieving packages...',
     ALPM_EVENT_DISKSPACE_START: 'checking available disk space...',
 
-    ALPM_EVENT_HOOK_START: ':: Running post-transaction hooks...',
-    ALPM_EVENT_HOOK_DONE: 'finish.',
+    # 这里有可能是 post-transaction 或者 pre-transaction
+    #ALPM_EVENT_HOOK_START: ':: Running post-transaction hooks...',
+    #ALPM_EVENT_HOOK_DONE: 'finish.',
 }
