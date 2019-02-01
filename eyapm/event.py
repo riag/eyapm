@@ -119,4 +119,5 @@ event_msg_map = {
     ALPM_EVENT_DISKSPACE_START: 'checking available disk space...',
 
     ALPM_EVENT_HOOK_START: ':: Running post-transaction hooks...',
+    ALPM_EVENT_HOOK_DONE: 'finish.',
 }
