@@ -72,8 +72,8 @@ def install_pkgnames(handle, syncdbs, quiet, force_install, pkgnames):
                 answer = input(':: Proceed with installation? [Y/n] ')
                 if not answer:
                     answer = 'y'
-
-            answer = answer.lower()
+                else:
+                    answer = answer.lower()
 
             if answer in ('y', 'yes'):
                 t.commit()
