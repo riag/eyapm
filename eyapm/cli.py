@@ -21,8 +21,8 @@ def eyapmcli(ctx, show_version):
 
     if show_version:
         msg_list = []
-        msg_list.append('eyapm version is %s' % eyapm.__version__)
-        msg_list.append('pyalpm version is %s' % pyalpm.version())
+        msg_list.append('eyapm   version is %s' % eyapm.__version__)
+        msg_list.append('pyalpm  version is %s' % pyalpm.version())
         msg_list.append('libalpm version is %s' % pyalpm.alpmversion())
         print('\n'.join(msg_list))
 
