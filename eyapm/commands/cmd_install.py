@@ -21,7 +21,7 @@ def install_pkgnames(handle, syncdbs, quiet, pkgnames):
 
     t = transaction.create_transaction(
         handle,
-        {'needed': False}
+        {'needed': True}
     )
 
     # :: Proceed with installation? [Y/n]
