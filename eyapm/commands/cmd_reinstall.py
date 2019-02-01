@@ -94,5 +94,8 @@ def reinstall_pkgs(handle, quiet, pkgnames):
 @click.argument('pkgnames', nargs=-1, required=True)
 def cli(ctx, config_file, quiet, pkgnames):
     handle = config.init_with_config(config_file)
+    syncdbs = handle.get_syncdbs()
+
+    eyapm.util.sync_dbs(handle, syncdbs)
 
     reinstall_pkgs(handle, quiet, pkgnames)
