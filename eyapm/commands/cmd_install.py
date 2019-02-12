@@ -38,6 +38,8 @@ def install_pkgnames(handle, syncdbs, quiet, force_install, pkgnames):
             print('Nothing to do.')
             return
 
+        transaction.set_operate_pkgs(t.to_add)
+
         total_install_size = 0
         total_download_size = 0
         for x in t.to_add:

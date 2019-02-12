@@ -10,6 +10,8 @@ cols = _environ_cols_wrapper()(sys.stdout)
 
 _last_operation_action = None
 
+_current_operate_pkg_map = {}
+
 
 def _start_operation_action(*args):
     event_str = args[1]
@@ -133,8 +135,17 @@ def cb_progress(target, percent, n, i):
         _last_pg_target = None
         _last_pg_progressbar = None
         _last_pg_percent = None
-        _last_operation_action = None
         _last_pg_desc = None
+
+        if _last_operation_action == 'installing':
+            global _current_operate_pkg_map
+            pkg = _current_operate_pkg_map.get(target, None)
+            if pkg and len(pkg.optdepends) > 0:
+                print('Optional dependencies for %s' % target)
+                for x in pkg.optdepends:
+                    print('    %s' % x)
+
+        _last_operation_action = None
 
 
 bar_dl_format_list = ['{desc:<30}', ' '*int(cols/3), ]
@@ -185,6 +196,13 @@ def cb_dl(filename, tx, total):
 
 def prepare(t):
     t.prepare()
+
+
+def set_operate_pkgs(pkgs):
+    global _current_operate_pkg_map
+    _current_operate_pkg_map.clear()
+    for pkg in pkgs:
+        _current_operate_pkg_map[pkg.name] = pkg
 
 
 '''
